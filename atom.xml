@@ -5,9 +5,9 @@
   
   <link href="/atom.xml" rel="self"/>
   
-  <link href="http://yoursite.com/"/>
-  <updated>2020-03-07T02:43:25.076Z</updated>
-  <id>http://yoursite.com/</id>
+  <link href="http://nimisora.com/"/>
+  <updated>2020-03-12T01:29:06.072Z</updated>
+  <id>http://nimisora.com/</id>
   
   <author>
     <name>SoraNimi</name>
@@ -17,9 +17,38 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>Java创建线程的四种方式</title>
+    <link href="http://nimisora.com/undefined/abbrlink.html"/>
+    <id>http://nimisora.com/undefined/abbrlink.html</id>
+    <published>2020-03-12T07:54:48.000Z</published>
+    <updated>2020-03-12T01:29:06.072Z</updated>
+    
+    <content type="html"><![CDATA[<ul><li><p>1、启动线程方式： 要启动的可以分为两类：返回结果和不返回结果。对于这两种，也分别有两种启动线程的方式：</p><p>1）继承Thread类，implements Runnable接口</p><p>2）实现Callable接口通过FutureTask包装器来创建Thread线程、使用ExecutorService、Callable、Future实现有返回结果的线程</p><h3 id="第一种：继承Thread类创建方程"><a href="#第一种：继承Thread类创建方程" class="headerlink" title="第一种：继承Thread类创建方程"></a>第一种：继承Thread类创建方程</h3><p>Thread类本质上是实现了Runnable接口的一个实例，代表一个线程的实例。启动线程的唯一方法就是通过Thread类的start()实例方法。start()方法是一个native方法，它将启动一个新线程，并执行run()方法。这种方式实现多线程很简单，通过自己的类直接extend Thread，并复写run()方法，就可以启动新线程并执行自己定义的run()方法。</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyThread</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  System.out.println(Thread.currentThread().getName()+<span class="string">"is running!"</span>);</span><br><span class="line">&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        MyThread myThread1 = <span class="keyword">new</span> MyThread();</span><br><span class="line">        MyThread myThread2 = <span class="keyword">new</span> MyThread();</span><br><span class="line">        myThread1.start();</span><br><span class="line">        myThread2.start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>结果：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Thread-0is running!</span><br><span class="line">Thread-1is running!</span><br></pre></td></tr></table></figure><hr><p><strong>2、实现Runnable接口创建线程</strong></p><p>如果自己的类已经extends另一个类，就无法直接extends Thread，此时，可以实现一个Runnable接口，如下：</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyThread</span>  <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line"> System.out.println(Thread.currentThread().getName()+<span class="string">" is Running!"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        MyThread myThread1=<span class="keyword">new</span> MyThread();</span><br><span class="line">        MyThread myThread2=<span class="keyword">new</span> MyThread();</span><br><span class="line">        Thread thread1=<span class="keyword">new</span> Thread(myThread1);</span><br><span class="line">        Thread thread2=<span class="keyword">new</span> Thread(myThread2);</span><br><span class="line">        thread1.start();</span><br><span class="line">        thread2.start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>运行结果：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Thread-1is running!</span><br><span class="line">Thread-0is running!</span><br></pre></td></tr></table></figure><p>在传入一个Runnable target参数给Thread后，Thread的run()方法就会调用target.run()，参考JDK源代码：</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">　　<span class="keyword">if</span> (target != <span class="keyword">null</span>) &#123;  </span><br><span class="line">　　 target.run();  </span><br><span class="line">　　&#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><hr><p>3、实现Callable接口通过FutureTask包装器来创建Thread线程</p><p>和Runnable接口不一样，Callable接口提供了一个call（）方法作为线程执行体，call()方法比run()方法功能要强大。</p><ul><li>call()方法可以有返回值</li><li>call()方法可以声明抛出异常</li></ul><p>Java5提供了Future接口来代表Callable接口里call()方法的返回值，并且为Future接口提供了一个实现类FutureTask，这个实现类既实现了Future接口，还实现了Runnable接口，因此可以作为Thread类的target。在Future接口里定义了几个公共方法来控制它关联的Callable任务。</p><blockquote><p>boolean cancel(boolean mayInterruptIfRunning)：视图取消该Future里面关联的Callable任务</p></blockquote><blockquote><p>V get()：返回Callable里call（）方法的返回值，调用这个方法会导致程序阻塞，必须等到子线程结束后才会得到返回值</p></blockquote><blockquote><p>V get(long timeout,TimeUnit unit)：返回Callable里call（）方法的返回值，最多阻塞timeout时间，经过指定时间没有返回抛出TimeoutException</p></blockquote><blockquote><p>boolean isDone()：若Callable任务完成，返回True</p></blockquote><blockquote><p>boolean isCancelled()：如果在Callable任务正常完成前被取消，返回True</p></blockquote><p>介绍了相关的概念之后，创建并启动有返回值的线程的步骤如下：</p><p>1】创建Callable接口的实现类，并实现call()方法，然后创建该实现类的实例（从java8开始可以直接使用Lambda表达式创建Callable对象）。</p><p>2】使用FutureTask类来包装Callable对象，该FutureTask对象封装了Callable对象的call()方法的返回值</p><p>3】使用FutureTask对象作为Thread对象的target创建并启动线程（因为FutureTask实现了Runnable接口）</p><p>4】调用FutureTask对象的get()方法来获得子线程执行结束后的返回值</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CallableDemo</span> <span class="keyword">implements</span> <span class="title">Callable</span>&lt;<span class="title">Integer</span>&gt; </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Integer <span class="title">call</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">5</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyThread</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> ExecutionException, InterruptedException </span>&#123;</span><br><span class="line">        CallableDemo callable=<span class="keyword">new</span> CallableDemo();</span><br><span class="line">        FutureTask&lt;Integer&gt;futureTask=<span class="keyword">new</span> FutureTask&lt;Integer&gt;(callable);</span><br><span class="line">        <span class="keyword">new</span> Thread(futureTask).start();</span><br><span class="line">        Integer result=futureTask.get();</span><br><span class="line">        System.out.println(result);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>结果：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">5</span><br></pre></td></tr></table></figure><p>1、FutrueTask类实现了RunnableFutrue接口，如下图</p><p><img src="https://tva1.sinaimg.cn/large/00831rSTly1gcqvqhhjm0j30jr01yaa2.jpg" alt="http://www.studyshare.cn/upload/images/201904242207460286193.png"></p><p>2、RunnableFutrue接口继承了Runnable和Futrue接口，如下图</p><p><img src="https://tva1.sinaimg.cn/large/00831rSTly1gcqvqgwapyj30ks06h74q.jpg" alt="http://www.studyshare.cn/upload/images/201904242209144468129.png"></p><p>由上图即可发现，FutrueTask类间接的实现了Runnable接口，从而可以使用new Thread(new FutrueTask(callable))去调用线程的start()方法启动线程。</p><p>3、继续进入Future接口中会发现get()方法</p><p><img src="https://tva1.sinaimg.cn/large/00831rSTly1gcqvqggrp1j30o306gwf8.jpg" alt="http://www.studyshare.cn/upload/images/201904242212373121310.png"></p><p>因此FutrueTask可以通过调用get()方法获取到返回的结果。用一张图来总结以上几个类和接口之间的关系，如下图：</p><p><img src="https://tva1.sinaimg.cn/large/00831rSTly1gcqvqif8t0j30k50gd0u0.jpg" alt="http://www.studyshare.cn/upload/images/201904242214137117738.png"></p><hr><h3 id="4、使用ExecutorService、Callable、Future实现有返回结果的线程"><a href="#4、使用ExecutorService、Callable、Future实现有返回结果的线程" class="headerlink" title="4、使用ExecutorService、Callable、Future实现有返回结果的线程"></a>4、使用ExecutorService、Callable、Future实现有返回结果的线程</h3><p>ExecutorService、Callable、Future三个接口实际上都是属于Executor框架。返回结果的线程是在JDK1.5中引入的新特征，有了这种特征就不需要再为了得到返回值而大费周折了。而且自己实现了也可能漏洞百出。</p><p>可返回值的任务必须实现Callable接口。类似的，无返回值的任务必须实现Runnable接口。</p><p>执行Callable任务后，可以获取一个Future的对象，在该对象上调用get就可以获取到Callable任务返回的Object了。</p><p>注意：get方法是阻塞的，即：线程无返回结果，get方法会一直等待。</p><p>再结合线程池接口ExecutorService就可以实现传说中有返回结果的多线程了。</p><p>下面提供了一个完整的有返回结果的多线程测试例子，在JDK1.5下验证过没问题可以直接使用。代码如下：</p><p>Test类：</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 有返回值的线程</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> ExecutionException,</span></span><br><span class="line"><span class="function">            InterruptedException </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"----程序开始运行----"</span>);</span><br><span class="line">        Date date1 = <span class="keyword">new</span> Date();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> taskSize = <span class="number">5</span>;</span><br><span class="line">        <span class="comment">// 创建一个线程池</span></span><br><span class="line">        ExecutorService pool = Executors.newFixedThreadPool(taskSize);</span><br><span class="line">        <span class="comment">// 创建多个有返回值的任务</span></span><br><span class="line">        List&lt;Future&gt; list = <span class="keyword">new</span> ArrayList&lt;Future&gt;();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; taskSize; i++) &#123;</span><br><span class="line">            Callable c = <span class="keyword">new</span> MyCallable(i + <span class="string">" "</span>);</span><br><span class="line">            <span class="comment">// 执行任务并获取Future对象</span></span><br><span class="line">            Future f = pool.submit(c);</span><br><span class="line">            <span class="comment">// System.out.println("&gt;&gt;&gt;" + f.get().toString());</span></span><br><span class="line">            list.add(f);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 关闭线程池</span></span><br><span class="line">        pool.shutdown();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 获取所有并发任务的运行结果</span></span><br><span class="line">        <span class="keyword">for</span> (Future f : list) &#123;</span><br><span class="line">            <span class="comment">// 从Future对象上获取任务的返回值，并输出到控制台</span></span><br><span class="line">            System.out.println(<span class="string">"&gt;&gt;&gt;"</span> + f.get().toString());</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        Date date2 = <span class="keyword">new</span> Date();</span><br><span class="line">        System.out.println(<span class="string">"----程序结束运行----，程序运行时间【"</span></span><br><span class="line">                + (date2.getTime() - date1.getTime()) + <span class="string">"毫秒】"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>MyCallable类：</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyCallable</span> <span class="keyword">implements</span> <span class="title">Callable</span>&lt;<span class="title">Object</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String taskNum;</span><br><span class="line"></span><br><span class="line">    MyCallable(String taskNum) &#123;</span><br><span class="line">        <span class="keyword">this</span>.taskNum = taskNum;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">call</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"&gt;&gt;&gt;"</span> + taskNum + <span class="string">"任务启动"</span>);</span><br><span class="line">        Date dateTmp1 = <span class="keyword">new</span> Date();</span><br><span class="line">        Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">        Date dateTmp2 = <span class="keyword">new</span> Date();</span><br><span class="line">        <span class="keyword">long</span> time = dateTmp2.getTime() - dateTmp1.getTime();</span><br><span class="line">        System.out.println(<span class="string">"&gt;&gt;&gt;"</span> + taskNum + <span class="string">"任务终止"</span>);</span><br><span class="line">        <span class="keyword">return</span> taskNum + <span class="string">"任务返回运行结果,当前任务时间【"</span> + time + <span class="string">"毫秒】"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>代码说明：上述代码中Executors类，提供了一系列工厂方法用于创建线程池，返回的线程池都实现了ExecutorService接口。public static ExecutorService newFixedThreadPool(int nThreads) 创建固定数目线程的线程池。public static ExecutorService newCachedThreadPool() 创建一个可缓存的线程池，调用execute 将重用以前构造的线程（如果线程可用）。如果现有线程没有可用的，则创建一个新线程并添加到池中。终止并从缓存中移除那些已有 60 秒钟未被使用的线程。public static ExecutorService newSingleThreadExecutor() 创建一个单线程化的Executor。public static ScheduledExecutorService newScheduledThreadPool(int corePoolSize) 创建一个支持定时及周期性的任务执行的线程池，多数情况下可用来替代Timer类。ExecutoreService提供了submit()方法，传递一个Callable，或Runnable，返回Future。如果Executor后台线程池还没有完成Callable的计算，这调用返回Future对象的get()方法，会阻塞直到计算完成。</p><p><a href="https://www.cnblogs.com/darendu/p/10778671.html" target="_blank" rel="noopener">线程之Callable、Future 和FutureTask使用及源码分析</a></p><p><a href="https://www.cnblogs.com/hplsharenote/p/9822486.html" target="_blank" rel="noopener">java创建线程的四种方法（转） - 小白和熊猫 - 博客园</a></p><p><a href="https://www.cnblogs.com/felixzh/p/6036074.html" target="_blank" rel="noopener">JAVA多线程实现的四种方式</a></p><p>具体使用请参考：<a href="https://www.cnblogs.com/felixzh/p/6036074.html但是这里对FutureTask结果返回没有说明，参考下篇" target="_blank" rel="noopener">https://www.cnblogs.com/felixzh/p/6036074.html但是这里对FutureTask结果返回没有说明，参考下篇</a></p><p>2、线程池的种类 四种。</p><p>查了网上的一些资料，上面都是先讲线程池存在的必要性：针对一些需要处理的短小而数量巨多的线程。比如在服务器中客户端浏览器的请求就有短小数量多的特点。</p><p>如果我们单纯地执行来一个请求回复一个，来回切换线程的代价太大。比如你要二十种不同的水果，他们分别放在相隔一米的管道里，并且每种水果发来的请求不一致，比如有的想要去皮，有的想要切盘，这时线程可以看作是“去皮”“切盘”前的准备工作，比如冲洗一下或者准备水果刀之类的。把线程准备好之后就可以进行最后的处理。</p><p>这时候，如果苹果说他想去皮，你要准备水果刀，再传过去给老大处理，二十米开外的菠萝说他想切块，你得准备螺丝刀，再给老大处理，是不是很麻烦，来回跑下来累得不行，还要准备不同的工具，效率太低。这时候就有了线程池的说法。线程池，每一个线程为一个要求服务，比如去皮，就创建去皮的线程，去核，就创建去核的线程（一般来说，某种水果对应的要求是一致的）。这里线程就是为去核，去皮做准备工作。这时候，就不用重复准备工作了。</p><p>四种线程池：<a href="https://www.cnblogs.com/aaron911/p/6213808.html" target="_blank" rel="noopener">https://www.cnblogs.com/aaron911/p/6213808.html</a><br> ———————————————— 版权声明：本文为CSDN博主「murongxian_1」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。 原文链接：<a href="https://blog.csdn.net/murongxian_1/article/details/81109294" target="_blank" rel="noopener">https://blog.csdn.net/murongxian_1/article/details/81109294</a></p></li></ul>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;ul&gt;
+&lt;li&gt;&lt;p&gt;1、启动线程方式： 要启动的可以分为两类：返回结果和不返回结果。对于这两种，也分别有两种启动线程的方式：&lt;/p&gt;
+&lt;p&gt;1）继承Thread类，implements Runnable接口&lt;/p&gt;
+&lt;p&gt;2）实现Callable接口通过FutureTask包
+      
+    
+    </summary>
+    
+    
+      <category term="Java" scheme="http://nimisora.com/categories/Java/"/>
+    
+    
+      <category term="多线程" scheme="http://nimisora.com/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Synchronized底层实现原理</title>
-    <link href="http://yoursite.com/2020/03/07/Synchronized%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/"/>
-    <id>http://yoursite.com/2020/03/07/Synchronized%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/</id>
+    <link href="http://nimisora.com/undefined/abbrlink.html"/>
+    <id>http://nimisora.com/undefined/abbrlink.html</id>
     <published>2020-03-07T02:42:10.000Z</published>
     <updated>2020-03-07T02:43:25.076Z</updated>
     
@@ -36,14 +65,14 @@
     
     
     
-      <category term="Synchronized" scheme="http://yoursite.com/tags/Synchronized/"/>
+      <category term="Synchronized" scheme="http://nimisora.com/tags/Synchronized/"/>
     
   </entry>
   
   <entry>
     <title>Collections知识点整理</title>
-    <link href="http://yoursite.com/2020/03/05/Collections%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/"/>
-    <id>http://yoursite.com/2020/03/05/Collections%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/</id>
+    <link href="http://nimisora.com/undefined/abbrlink.html"/>
+    <id>http://nimisora.com/undefined/abbrlink.html</id>
     <published>2020-03-05T08:12:10.000Z</published>
     <updated>2020-03-05T08:18:57.857Z</updated>
     
@@ -59,17 +88,17 @@
     </summary>
     
     
-      <category term="Java" scheme="http://yoursite.com/categories/Java/"/>
+      <category term="Java" scheme="http://nimisora.com/categories/Java/"/>
     
     
-      <category term="Collections" scheme="http://yoursite.com/tags/Collections/"/>
+      <category term="Collections" scheme="http://nimisora.com/tags/Collections/"/>
     
   </entry>
   
   <entry>
     <title>深入理解Volatile关键字及其实现原理</title>
-    <link href="http://yoursite.com/2020/03/05/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Volatile%E5%85%B3%E9%94%AE%E5%AD%97%E5%8F%8A%E5%85%B6%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/"/>
-    <id>http://yoursite.com/2020/03/05/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Volatile%E5%85%B3%E9%94%AE%E5%AD%97%E5%8F%8A%E5%85%B6%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/</id>
+    <link href="http://nimisora.com/undefined/abbrlink.html"/>
+    <id>http://nimisora.com/undefined/abbrlink.html</id>
     <published>2020-03-05T02:13:29.000Z</published>
     <updated>2020-03-05T06:37:53.900Z</updated>
     
@@ -90,8 +119,8 @@
   
   <entry>
     <title>Redis缓存穿透、缓存雪崩、redis并发问题分析</title>
-    <link href="http://yoursite.com/2020/03/02/Redis%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F%E3%80%81%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9%E3%80%81redis%E5%B9%B6%E5%8F%91%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90/"/>
-    <id>http://yoursite.com/2020/03/02/Redis%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F%E3%80%81%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9%E3%80%81redis%E5%B9%B6%E5%8F%91%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90/</id>
+    <link href="http://nimisora.com/undefined/abbrlink.html"/>
+    <id>http://nimisora.com/undefined/abbrlink.html</id>
     <published>2020-03-02T10:34:38.000Z</published>
     <updated>2020-03-02T10:34:38.905Z</updated>
     
@@ -105,8 +134,8 @@
   
   <entry>
     <title>Java中的四个访问修饰符范围</title>
-    <link href="http://yoursite.com/2020/03/02/Java%E4%B8%AD%E7%9A%84%E5%9B%9B%E4%B8%AA%E8%AE%BF%E9%97%AE%E4%BF%AE%E9%A5%B0%E7%AC%A6%E8%8C%83%E5%9B%B4/"/>
-    <id>http://yoursite.com/2020/03/02/Java%E4%B8%AD%E7%9A%84%E5%9B%9B%E4%B8%AA%E8%AE%BF%E9%97%AE%E4%BF%AE%E9%A5%B0%E7%AC%A6%E8%8C%83%E5%9B%B4/</id>
+    <link href="http://nimisora.com/undefined/abbrlink.html"/>
+    <id>http://nimisora.com/undefined/abbrlink.html</id>
     <published>2020-03-02T10:22:55.000Z</published>
     <updated>2020-03-02T10:30:16.251Z</updated>
     
@@ -128,17 +157,17 @@
     </summary>
     
     
-      <category term="Java" scheme="http://yoursite.com/categories/Java/"/>
+      <category term="Java" scheme="http://nimisora.com/categories/Java/"/>
     
     
   </entry>
   
   <entry>
     <title>常见用例测试</title>
-    <link href="http://yoursite.com/2020/03/02/%E6%B5%8B%E8%AF%95/%E5%B8%B8%E8%A7%81%E7%94%A8%E4%BE%8B%E6%B5%8B%E8%AF%95/"/>
-    <id>http://yoursite.com/2020/03/02/%E6%B5%8B%E8%AF%95/%E5%B8%B8%E8%A7%81%E7%94%A8%E4%BE%8B%E6%B5%8B%E8%AF%95/</id>
+    <link href="http://nimisora.com/undefined/abbrlink.html"/>
+    <id>http://nimisora.com/undefined/abbrlink.html</id>
     <published>2020-03-02T07:54:48.000Z</published>
-    <updated>2020-03-02T13:39:18.657Z</updated>
+    <updated>2020-03-12T01:13:55.271Z</updated>
     
     <content type="html"><![CDATA[<p><strong>1. 如何对一瓶矿泉水瓶进行测试</strong></p><p>根据功能、性能、界面、可靠性、易用性、兼容性、安全性测试方面进行测试，具有条理性。</p><p>功能：</p><ul><li>测试矿泉水瓶的容量是多少，是否与标注相同</li><li>水瓶本身漏不漏水</li><li>水瓶中的水是否能够全部倒出来，还是会在瓶中残留一些</li><li>水瓶拧紧水漏不漏</li></ul><p>性能：</p><ul><li>水瓶里装满水，倒立观察 24 小时，是否漏水</li><li>水瓶盖能够使用多少次，随着次数的增多，螺纹是否会变松</li></ul><p>界面：</p><ul><li>水瓶上的说明是否清楚，什么材质做的，容量是多少</li><li>水瓶上的字体是否容易被抹去</li></ul><p>可靠性：</p><ul><li>水瓶从高处下落会对瓶子本身造成影响</li></ul><p>兼容性：</p><ul><li>水瓶中装其他液体，如酒精、油等是否泄漏，是否与瓶子本身反应</li></ul><p>安全性：</p><ul><li>水瓶装满水在高温或者低温下，是否会因为气压不同而喷开</li><li>水瓶装满水放在冰箱中冷冻是否会裂开</li></ul><p><strong>2. 如何测试共享单车从扫码到开锁这一环节</strong></p><p>功能：</p><ul><li>测试点开扫码界面，是否能够打开相机进行二维码扫描</li><li>测试扫码状态下，手电筒是否能够使用，是否能够转到输入车辆编码模式下</li><li>测试扫描界面是否能够识别二维码</li><li>测试扫描界面是否能够识别出单车是否属于本公司</li><li>测试扫码后，是否能够根据二维码查出车辆是否有问题</li><li>测试扫描后，车辆是否能够开锁成功</li></ul><p>性能：</p><ul><li>多长时间内能够识别出二维码</li><li>多长时间内二维码识别后能够解锁车辆成功</li><li>车锁会不会只开一半，什么情况下会这样</li></ul><p>界面：</p><ul><li>开锁成功后，App 界面是否会显示开锁成功</li><li>开锁失败后，App 界面是否会显示失败原因</li></ul><p>可靠性：</p><ul><li>车辆被扫码 N 次后，故障率是否提高</li><li>手机扫码端扫码 N 次后，不成功率是否提高</li><li>二维码上有灰尘，不清楚，是否能够扫码成功</li></ul><p>兼容性：</p><ul><li>不同手机型号进行扫码，是否都能成功</li><li>不同 App 版本扫码是否都能成功</li><li>不同小程序扫码是否能够成功</li></ul><p>安全性：</p><ul><li>车辆是否会被其他公司程序扫码成功</li><li>车辆没有开锁被移动是否会发出警告</li></ul>]]></content>
     
@@ -157,19 +186,19 @@
     </summary>
     
     
-      <category term="测试" scheme="http://yoursite.com/categories/%E6%B5%8B%E8%AF%95/"/>
+      <category term="测试" scheme="http://nimisora.com/categories/%E6%B5%8B%E8%AF%95/"/>
     
     
-      <category term="水" scheme="http://yoursite.com/tags/%E6%B0%B4/"/>
+      <category term="水" scheme="http://nimisora.com/tags/%E6%B0%B4/"/>
     
-      <category term="共享单车" scheme="http://yoursite.com/tags/%E5%85%B1%E4%BA%AB%E5%8D%95%E8%BD%A6/"/>
+      <category term="共享单车" scheme="http://nimisora.com/tags/%E5%85%B1%E4%BA%AB%E5%8D%95%E8%BD%A6/"/>
     
   </entry>
   
   <entry>
     <title>设计模式六大原则</title>
-    <link href="http://yoursite.com/2020/03/02/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%85%AD%E5%A4%A7%E5%8E%9F%E5%88%99/"/>
-    <id>http://yoursite.com/2020/03/02/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%85%AD%E5%A4%A7%E5%8E%9F%E5%88%99/</id>
+    <link href="http://nimisora.com/undefined/abbrlink.html"/>
+    <id>http://nimisora.com/undefined/abbrlink.html</id>
     <published>2020-03-02T07:27:14.000Z</published>
     <updated>2020-03-02T07:40:36.737Z</updated>
     
@@ -185,15 +214,15 @@
     </summary>
     
     
-      <category term="设计模式" scheme="http://yoursite.com/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
+      <category term="设计模式" scheme="http://nimisora.com/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
     
     
   </entry>
   
   <entry>
     <title>面试考点回答</title>
-    <link href="http://yoursite.com/2020/03/01/%E9%9D%A2%E8%AF%95%E8%80%83%E7%82%B9%E5%9B%9E%E7%AD%94/"/>
-    <id>http://yoursite.com/2020/03/01/%E9%9D%A2%E8%AF%95%E8%80%83%E7%82%B9%E5%9B%9E%E7%AD%94/</id>
+    <link href="http://nimisora.com/undefined/abbrlink.html"/>
+    <id>http://nimisora.com/undefined/abbrlink.html</id>
     <published>2020-03-01T15:27:39.000Z</published>
     <updated>2020-03-01T15:27:39.440Z</updated>
     
@@ -207,8 +236,8 @@
   
   <entry>
     <title>URL去重</title>
-    <link href="http://yoursite.com/2020/03/01/URL%E5%8E%BB%E9%87%8D/"/>
-    <id>http://yoursite.com/2020/03/01/URL%E5%8E%BB%E9%87%8D/</id>
+    <link href="http://nimisora.com/undefined/abbrlink.html"/>
+    <id>http://nimisora.com/undefined/abbrlink.html</id>
     <published>2020-03-01T14:40:07.000Z</published>
     <updated>2020-03-01T15:08:28.451Z</updated>
     
@@ -224,17 +253,17 @@
     </summary>
     
     
-      <category term="项目" scheme="http://yoursite.com/categories/%E9%A1%B9%E7%9B%AE/"/>
+      <category term="项目" scheme="http://nimisora.com/categories/%E9%A1%B9%E7%9B%AE/"/>
     
     
-      <category term="URL" scheme="http://yoursite.com/tags/URL/"/>
+      <category term="URL" scheme="http://nimisora.com/tags/URL/"/>
     
   </entry>
   
   <entry>
     <title>mybatis预防sql注入</title>
-    <link href="http://yoursite.com/2020/03/01/mybatis%E9%A2%84%E9%98%B2sql%E6%B3%A8%E5%85%A5/"/>
-    <id>http://yoursite.com/2020/03/01/mybatis%E9%A2%84%E9%98%B2sql%E6%B3%A8%E5%85%A5/</id>
+    <link href="http://nimisora.com/undefined/abbrlink.html"/>
+    <id>http://nimisora.com/undefined/abbrlink.html</id>
     <published>2020-03-01T14:21:35.000Z</published>
     <updated>2020-03-01T14:22:45.100Z</updated>
     
@@ -250,17 +279,17 @@
     </summary>
     
     
-      <category term="数据库" scheme="http://yoursite.com/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
+      <category term="数据库" scheme="http://nimisora.com/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
     
     
-      <category term="Mybatis" scheme="http://yoursite.com/tags/Mybatis/"/>
+      <category term="Mybatis" scheme="http://nimisora.com/tags/Mybatis/"/>
     
   </entry>
   
   <entry>
     <title>预防sql注入</title>
-    <link href="http://yoursite.com/2020/03/01/%E9%A2%84%E9%98%B2sql%E6%B3%A8%E5%85%A5/"/>
-    <id>http://yoursite.com/2020/03/01/%E9%A2%84%E9%98%B2sql%E6%B3%A8%E5%85%A5/</id>
+    <link href="http://nimisora.com/undefined/abbrlink.html"/>
+    <id>http://nimisora.com/undefined/abbrlink.html</id>
     <published>2020-03-01T14:06:50.000Z</published>
     <updated>2020-03-01T14:20:10.153Z</updated>
     
@@ -276,17 +305,17 @@
     </summary>
     
     
-      <category term="sql" scheme="http://yoursite.com/categories/sql/"/>
+      <category term="sql" scheme="http://nimisora.com/categories/sql/"/>
     
     
-      <category term="sql" scheme="http://yoursite.com/tags/sql/"/>
+      <category term="sql" scheme="http://nimisora.com/tags/sql/"/>
     
   </entry>
   
   <entry>
     <title>Git上线流程</title>
-    <link href="http://yoursite.com/2020/03/01/Git%E4%B8%8A%E7%BA%BF%E6%B5%81%E7%A8%8B/"/>
-    <id>http://yoursite.com/2020/03/01/Git%E4%B8%8A%E7%BA%BF%E6%B5%81%E7%A8%8B/</id>
+    <link href="http://nimisora.com/undefined/abbrlink.html"/>
+    <id>http://nimisora.com/undefined/abbrlink.html</id>
     <published>2020-03-01T11:50:17.000Z</published>
     <updated>2020-03-01T11:52:12.203Z</updated>
     
@@ -295,17 +324,17 @@
     </summary>
     
     
-      <category term="Git" scheme="http://yoursite.com/categories/Git/"/>
+      <category term="Git" scheme="http://nimisora.com/categories/Git/"/>
     
     
-      <category term="Git" scheme="http://yoursite.com/tags/Git/"/>
+      <category term="Git" scheme="http://nimisora.com/tags/Git/"/>
     
   </entry>
   
   <entry>
     <title>单点登录</title>
-    <link href="http://yoursite.com/2020/03/01/%E5%8D%95%E7%82%B9%E7%99%BB%E5%BD%95/"/>
-    <id>http://yoursite.com/2020/03/01/%E5%8D%95%E7%82%B9%E7%99%BB%E5%BD%95/</id>
+    <link href="http://nimisora.com/undefined/abbrlink.html"/>
+    <id>http://nimisora.com/undefined/abbrlink.html</id>
     <published>2020-03-01T09:26:09.000Z</published>
     <updated>2020-03-02T13:40:27.616Z</updated>
     
@@ -314,17 +343,17 @@
     </summary>
     
     
-      <category term="Java" scheme="http://yoursite.com/categories/Java/"/>
+      <category term="Java" scheme="http://nimisora.com/categories/Java/"/>
     
     
-      <category term="单点登录" scheme="http://yoursite.com/tags/%E5%8D%95%E7%82%B9%E7%99%BB%E5%BD%95/"/>
+      <category term="单点登录" scheme="http://nimisora.com/tags/%E5%8D%95%E7%82%B9%E7%99%BB%E5%BD%95/"/>
     
   </entry>
   
   <entry>
     <title>如何使用两个线程交替打印1--100</title>
-    <link href="http://yoursite.com/2020/02/29/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8%E4%B8%A4%E4%B8%AA%E7%BA%BF%E7%A8%8B%E4%BA%A4%E6%9B%BF%E6%89%93%E5%8D%B01-100/"/>
-    <id>http://yoursite.com/2020/02/29/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8%E4%B8%A4%E4%B8%AA%E7%BA%BF%E7%A8%8B%E4%BA%A4%E6%9B%BF%E6%89%93%E5%8D%B01-100/</id>
+    <link href="http://nimisora.com/undefined/abbrlink.html"/>
+    <id>http://nimisora.com/undefined/abbrlink.html</id>
     <published>2020-02-29T09:46:07.000Z</published>
     <updated>2020-02-29T10:14:54.222Z</updated>
     
@@ -337,15 +366,15 @@
     </summary>
     
     
-      <category term="多线程" scheme="http://yoursite.com/categories/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
+      <category term="多线程" scheme="http://nimisora.com/categories/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
     
     
   </entry>
   
   <entry>
     <title>Java的生产者-消费者模型</title>
-    <link href="http://yoursite.com/2020/02/29/Java%E7%9A%84%E7%94%9F%E4%BA%A7%E8%80%85-%E6%B6%88%E8%B4%B9%E8%80%85%E6%A8%A1%E5%9E%8B/"/>
-    <id>http://yoursite.com/2020/02/29/Java%E7%9A%84%E7%94%9F%E4%BA%A7%E8%80%85-%E6%B6%88%E8%B4%B9%E8%80%85%E6%A8%A1%E5%9E%8B/</id>
+    <link href="http://nimisora.com/undefined/abbrlink.html"/>
+    <id>http://nimisora.com/undefined/abbrlink.html</id>
     <published>2020-02-29T07:54:48.000Z</published>
     <updated>2020-02-29T07:42:59.374Z</updated>
     
@@ -354,19 +383,19 @@
     </summary>
     
     
-      <category term="多线程" scheme="http://yoursite.com/categories/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
+      <category term="多线程" scheme="http://nimisora.com/categories/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
     
     
-      <category term="生产者" scheme="http://yoursite.com/tags/%E7%94%9F%E4%BA%A7%E8%80%85/"/>
+      <category term="生产者" scheme="http://nimisora.com/tags/%E7%94%9F%E4%BA%A7%E8%80%85/"/>
     
-      <category term="消费者" scheme="http://yoursite.com/tags/%E6%B6%88%E8%B4%B9%E8%80%85/"/>
+      <category term="消费者" scheme="http://nimisora.com/tags/%E6%B6%88%E8%B4%B9%E8%80%85/"/>
     
   </entry>
   
   <entry>
     <title>Java单例模式</title>
-    <link href="http://yoursite.com/2020/02/29/Java%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/"/>
-    <id>http://yoursite.com/2020/02/29/Java%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/</id>
+    <link href="http://nimisora.com/undefined/abbrlink.html"/>
+    <id>http://nimisora.com/undefined/abbrlink.html</id>
     <published>2020-02-29T07:54:48.000Z</published>
     <updated>2020-03-01T14:43:47.204Z</updated>
     
@@ -382,19 +411,19 @@
     </summary>
     
     
-      <category term="设计模式" scheme="http://yoursite.com/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
+      <category term="设计模式" scheme="http://nimisora.com/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
     
     
-      <category term="饱汉" scheme="http://yoursite.com/tags/%E9%A5%B1%E6%B1%89/"/>
+      <category term="饱汉" scheme="http://nimisora.com/tags/%E9%A5%B1%E6%B1%89/"/>
     
-      <category term="懒汉" scheme="http://yoursite.com/tags/%E6%87%92%E6%B1%89/"/>
+      <category term="懒汉" scheme="http://nimisora.com/tags/%E6%87%92%E6%B1%89/"/>
     
   </entry>
   
   <entry>
     <title>HashMap和HashTable的区别</title>
-    <link href="http://yoursite.com/2020/02/29/HashTable%E5%92%8CHashMap%E7%9A%84%E5%8C%BA%E5%88%AB/"/>
-    <id>http://yoursite.com/2020/02/29/HashTable%E5%92%8CHashMap%E7%9A%84%E5%8C%BA%E5%88%AB/</id>
+    <link href="http://nimisora.com/undefined/abbrlink.html"/>
+    <id>http://nimisora.com/undefined/abbrlink.html</id>
     <published>2020-02-29T04:26:09.000Z</published>
     <updated>2020-03-02T13:40:13.495Z</updated>
     
@@ -411,19 +440,19 @@
     </summary>
     
     
-      <category term="Java" scheme="http://yoursite.com/categories/Java/"/>
+      <category term="Java" scheme="http://nimisora.com/categories/Java/"/>
     
     
-      <category term="HashMap" scheme="http://yoursite.com/tags/HashMap/"/>
+      <category term="HashMap" scheme="http://nimisora.com/tags/HashMap/"/>
     
-      <category term="HashTable" scheme="http://yoursite.com/tags/HashTable/"/>
+      <category term="HashTable" scheme="http://nimisora.com/tags/HashTable/"/>
     
   </entry>
   
   <entry>
     <title>头条面试1</title>
-    <link href="http://yoursite.com/2020/02/29/%E5%A4%B4%E6%9D%A1%E9%9D%A2%E8%AF%951/"/>
-    <id>http://yoursite.com/2020/02/29/%E5%A4%B4%E6%9D%A1%E9%9D%A2%E8%AF%951/</id>
+    <link href="http://nimisora.com/undefined/abbrlink.html"/>
+    <id>http://nimisora.com/undefined/abbrlink.html</id>
     <published>2020-02-29T04:26:09.000Z</published>
     <updated>2020-02-29T04:32:24.325Z</updated>
     
@@ -439,17 +468,17 @@
     </summary>
     
     
-      <category term="计算机网络" scheme="http://yoursite.com/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/"/>
+      <category term="计算机网络" scheme="http://nimisora.com/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/"/>
     
     
-      <category term="头条" scheme="http://yoursite.com/tags/%E5%A4%B4%E6%9D%A1/"/>
+      <category term="头条" scheme="http://nimisora.com/tags/%E5%A4%B4%E6%9D%A1/"/>
     
   </entry>
   
   <entry>
     <title>InnoDB的区别</title>
-    <link href="http://yoursite.com/2020/02/29/MyISAM%E5%92%8CInnoDB%E7%9A%84%E5%8C%BA%E5%88%AB/"/>
-    <id>http://yoursite.com/2020/02/29/MyISAM%E5%92%8CInnoDB%E7%9A%84%E5%8C%BA%E5%88%AB/</id>
+    <link href="http://nimisora.com/undefined/abbrlink.html"/>
+    <id>http://nimisora.com/undefined/abbrlink.html</id>
     <published>2020-02-29T00:54:48.000Z</published>
     <updated>2020-03-02T14:04:25.372Z</updated>
     
@@ -465,39 +494,10 @@
     </summary>
     
     
-      <category term="数据库" scheme="http://yoursite.com/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
+      <category term="数据库" scheme="http://nimisora.com/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
     
     
-      <category term="MyISAM" scheme="http://yoursite.com/tags/MyISAM/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>SpringBean</title>
-    <link href="http://yoursite.com/2020/02/29/SpringBean/"/>
-    <id>http://yoursite.com/2020/02/29/SpringBean/</id>
-    <published>2020-02-29T00:54:48.000Z</published>
-    <updated>2020-03-06T13:11:45.444Z</updated>
-    
-    <content type="html"><![CDATA[<p>1、spring如何管理bean、bean的生命周期<br>2、spring管理的bean有哪些模式，spring默认的是什么模式</p><p><img src="https://tva1.sinaimg.cn/large/00831rSTly1gceuqh4xfwj31cz0u0k5g.jpg" alt="image-20200301233754947"></p><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;beans&gt;</span><br><span class="line">    &lt;bean id=<span class="string">"demoBean"</span> <span class="class"><span class="keyword">class</span></span>=<span class="string">"com.somnus.task.DemoBean"</span> init-</span><br><span class="line">method="customInit" destroy-method="customDestroy"&gt;&lt;/bean&gt;</span><br><span class="line">&lt;/beans&gt;</span><br></pre></td></tr></table></figure>]]></content>
-    
-    <summary type="html">
-    
-      
-      
-        &lt;p&gt;1、spring如何管理bean、bean的生命周期&lt;br&gt;2、spring管理的bean有哪些模式，spring默认的是什么模式&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;https://tva1.sinaimg.cn/large/00831rSTly1gceuqh4xfwj31
-      
-    
-    </summary>
-    
-    
-      <category term="Java" scheme="http://yoursite.com/categories/Java/"/>
-    
-    
-      <category term="Spring" scheme="http://yoursite.com/tags/Spring/"/>
-    
-      <category term="Bean" scheme="http://yoursite.com/tags/Bean/"/>
+      <category term="MyISAM" scheme="http://nimisora.com/tags/MyISAM/"/>
     
   </entry>
   
