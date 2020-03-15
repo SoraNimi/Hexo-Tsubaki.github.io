@@ -444,29 +444,6 @@
   </entry>
   
   <entry>
-    <title>Java的生产者-消费者模型</title>
-    <link href="http://nimisora.com/post/1KJC1GF.html"/>
-    <id>http://nimisora.com/post/1KJC1GF.html</id>
-    <published>2020-02-29T07:54:48.000Z</published>
-    <updated>2020-03-13T08:41:33.229Z</updated>
-    
-    <summary type="html">
-    
-    </summary>
-    
-    
-      <category term="多线程" scheme="http://nimisora.com/categories/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
-    
-      <category term="Java" scheme="http://nimisora.com/categories/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Java/"/>
-    
-    
-      <category term="生产者" scheme="http://nimisora.com/tags/%E7%94%9F%E4%BA%A7%E8%80%85/"/>
-    
-      <category term="消费者" scheme="http://nimisora.com/tags/%E6%B6%88%E8%B4%B9%E8%80%85/"/>
-    
-  </entry>
-  
-  <entry>
     <title>Java单例模式</title>
     <link href="http://nimisora.com/post/23CXE7H.html"/>
     <id>http://nimisora.com/post/23CXE7H.html</id>
@@ -493,6 +470,29 @@
       <category term="饱汉" scheme="http://nimisora.com/tags/%E9%A5%B1%E6%B1%89/"/>
     
       <category term="懒汉" scheme="http://nimisora.com/tags/%E6%87%92%E6%B1%89/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Java的生产者-消费者模型</title>
+    <link href="http://nimisora.com/post/1KJC1GF.html"/>
+    <id>http://nimisora.com/post/1KJC1GF.html</id>
+    <published>2020-02-29T07:54:48.000Z</published>
+    <updated>2020-03-13T08:41:33.229Z</updated>
+    
+    <summary type="html">
+    
+    </summary>
+    
+    
+      <category term="多线程" scheme="http://nimisora.com/categories/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
+    
+      <category term="Java" scheme="http://nimisora.com/categories/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Java/"/>
+    
+    
+      <category term="生产者" scheme="http://nimisora.com/tags/%E7%94%9F%E4%BA%A7%E8%80%85/"/>
+    
+      <category term="消费者" scheme="http://nimisora.com/tags/%E6%B6%88%E8%B4%B9%E8%80%85/"/>
     
   </entry>
   
